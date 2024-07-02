@@ -5,7 +5,6 @@ import (
     "github.com/gocolly/colly"
     "recipe-scraper/shared"
 		"strings"
-		"log/slog"
 )
 
 type PinchOfYumParser struct{}
@@ -30,14 +29,6 @@ func (p *PinchOfYumParser) ParseRecipe(e *colly.HTMLElement) shared.Recipe {
 		// append text and urls for images
 		instructions = append(instructions, elem.Text)
 	})
-
-	// print the recipe
-	slog.Info("Title: ", title)
-	slog.Info("Ingredients: ", ingredients)
-	slog.Info("Total Time: ", totalTime)
-	slog.Info("Categories: ", categories)
-	slog.Info("Instructions: ", instructions)
-	slog.Info("Link: ", e.Request.URL.String())
 
 	return shared.Recipe{
 		Title:        title,
