@@ -7,5 +7,5 @@ type Config struct {
 
 var config = Config{
 	BlackListedExtensions: []string{".jpg", ".jpeg", ".png", ".gif", ".webp"},
-	AllowedDomains:        []string{"wanderingstarfarmhouse.com", "pinchofyum.com"},
+	AllowedDomains:        []string{"wanderingstarfarmhouse.com", "pinchofyum.com", "sallysbakingaddiction.com"},
 }
