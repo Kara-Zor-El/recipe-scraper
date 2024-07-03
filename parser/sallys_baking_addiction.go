@@ -13,7 +13,7 @@ func (p *SallysBakingAddictionParser) ParseRecipe(e *colly.HTMLElement) shared.R
 	// ingredients | span inside div.tasty-recipes-ingredients
 	// prepTime | span.tasty-recipes-prep-time
 	// cookTime | span.tasty-recipes-cook-time
-	// totalTime | span.tasty-recipes-total
+	// totalTime | span.tasty-recipes-total || li.total-time selectorgadget_selected
 	// categories | capital words of the title split by space
 	// instructions | div.tasty-recipes-instructions
 	// link | current page
@@ -26,6 +26,9 @@ func (p *SallysBakingAddictionParser) ParseRecipe(e *colly.HTMLElement) shared.R
 	prepTime := e.ChildText("span.tasty-recipes-prep-time")
 	cookTime := e.ChildText("span.tasty-recipes-cook-time")
 	totalTime := e.ChildText("span.tasty-recipes-total")
+	if totalTime == "" {
+		totalTime = e.ChildText("li.total-time selectorgadget_selected")
+	}
 	categories := strings.Split(title, " ")
 	var instructions []string
 	e.ForEach("div.tasty-recipes-instructions ol li", func(_ int, elem *colly.HTMLElement) {
