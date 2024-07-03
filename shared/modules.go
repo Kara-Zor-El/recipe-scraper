@@ -10,7 +10,7 @@ type Recipe struct {
 	Link         string   `json:"link"`
 	PrepTime     string   `json:"prep_time"`
 	CookingTime  string   `json:"cooking_time"`
+	TotalTime    string   `json:"total_time"`
 	Categories   []string `json:"categories"`
 	Instructions []string `json:"instructions"`
-	TotalTime    string   `json:"total_time"`
 }
