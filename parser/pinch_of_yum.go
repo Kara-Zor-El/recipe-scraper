@@ -1,10 +1,9 @@
-
 package parser
 
 import (
-    "github.com/gocolly/colly"
-    "recipe-scraper/shared"
-		"strings"
+	"github.com/gocolly/colly"
+	"recipe-scraper/shared"
+	"strings"
 )
 
 type PinchOfYumParser struct{}
@@ -19,9 +18,9 @@ func (p *PinchOfYumParser) ParseRecipe(e *colly.HTMLElement) shared.Recipe {
 	title := e.ChildText("h2.tasty-recipes-title")
 	ingredients := []string{}
 	e.ForEach("li[data-tr-ingredient-checkbox]", func(_ int, elem *colly.HTMLElement) {
-        ingredient := elem.Text
-        ingredients = append(ingredients, ingredient)
-    })
+		ingredient := elem.Text
+		ingredients = append(ingredients, ingredient)
+	})
 	totalTime := e.ChildText("span.tasty-recipes-total-time")
 	categories := strings.Split(title, " ")
 	var instructions []string
@@ -41,14 +40,14 @@ func (p *PinchOfYumParser) ParseRecipe(e *colly.HTMLElement) shared.Recipe {
 }
 
 func (p *PinchOfYumParser) RootLink() string {
-    return "https://pinchofyum.com"
+	return "https://pinchofyum.com"
 }
 
 func (p *PinchOfYumParser) RecipeSelector() string {
-    return ".tasty-recipes-has-image"
+	return ".tasty-recipes-has-image"
 }
 
 func (p *PinchOfYumParser) HandleRecipe(e *colly.HTMLElement, recipeChannel chan shared.Recipe) {
-    recipe := p.ParseRecipe(e)
-		recipeChannel <- recipe
+	recipe := p.ParseRecipe(e)
+	recipeChannel <- recipe
 }

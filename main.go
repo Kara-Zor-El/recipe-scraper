@@ -1,68 +1,71 @@
 package main
 
 import (
-    "sync"
+	"sync"
 
-    "github.com/gocolly/colly"
-    "log/slog"
-    "recipe-scraper/parser"
-    "recipe-scraper/shared"
+	"github.com/gocolly/colly"
+	"log/slog"
+	"recipe-scraper/parser"
+	"recipe-scraper/shared"
 )
 
 type SiteConfig struct {
-    Domain string
-    Parser parser.RecipeParser
+	Domain string
+	Parser parser.RecipeParser
 }
 
 var siteConfigs = []SiteConfig{
-    {
-        Domain: "wanderingstarfarmhouse.com",
-        Parser: &parser.WanderingStarFarmhouseParser{},
-    },
-		{
-				Domain: "pinchofyum.com",
-				Parser: &parser.PinchOfYumParser{},
-		},
+	{
+		Domain: "wanderingstarfarmhouse.com",
+		Parser: &parser.WanderingStarFarmhouseParser{},
+	},
+	{
+		Domain: "pinchofyum.com",
+		Parser: &parser.PinchOfYumParser{},
+	},
 }
 
 func main() {
-    var wg sync.WaitGroup
-    recipeChannel := make(chan shared.Recipe, 100)
-    visitedLinks := make(map[string]struct{})
-    visitedLinksMu := sync.Mutex{}
+	var wg sync.WaitGroup
+	recipeChannel := make(chan shared.Recipe, 100)
+	visitedLinks := make(map[string]struct{})
+	visitedLinksMu := sync.Mutex{}
 
-    for _, siteConfig := range siteConfigs {
-        parser := siteConfig.Parser
-        c := colly.NewCollector(colly.AllowedDomains(config.AllowedDomains...))
+	createRecipeDirectory()
 
-        c.OnRequest(func(r *colly.Request) {
-            slog.Info("Visiting: ", r.URL.String())
-        })
+	for _, siteConfig := range siteConfigs {
+		parser := siteConfig.Parser
+		c := colly.NewCollector(colly.AllowedDomains(config.AllowedDomains...))
 
-        c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-            wg.Add(1)
-            go handleLink(e, c, &wg, recipeChannel, &visitedLinks, &visitedLinksMu, parser)
-        })
+		c.OnRequest(func(r *colly.Request) {
+			slog.Info("Visiting: ", r.URL.String())
+		})
 
-        c.OnHTML(parser.RecipeSelector(), func(e *colly.HTMLElement) {
-            parser.HandleRecipe(e, recipeChannel)
-        })
+		c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+			wg.Add(1)
+			go handleLink(e, c, &wg, recipeChannel, &visitedLinks, &visitedLinksMu, parser)
+		})
 
-        wg.Add(1)
-        go func() {
-            defer wg.Done()
-            c.Visit(parser.RootLink())
-        }()
-    }
+		c.OnHTML(parser.RecipeSelector(), func(e *colly.HTMLElement) {
+			parser.HandleRecipe(e, recipeChannel)
+		})
 
-    go func() {
-        wg.Wait()
-        close(recipeChannel)
-    }()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.Visit(parser.RootLink())
+		}()
+	}
 
-    for recipe := range recipeChannel {
-        recipes = append(recipes, recipe)
-    }
+	go func() {
+		wg.Wait()
+		close(recipeChannel)
+	}()
 
-    writeRecipesToJSON()
+	for recipe := range recipeChannel {
+		recipes = append(recipes, recipe)
+		writeRecipeToJSON(recipe)
+	}
+
+	// writeRecipesToJSON()
 }
