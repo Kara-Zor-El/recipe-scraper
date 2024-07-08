@@ -3,10 +3,11 @@ package main
 import (
 	"sync"
 
-	"github.com/gocolly/colly"
 	"log/slog"
 	"recipe-scraper/parser"
 	"recipe-scraper/shared"
+
+	"github.com/gocolly/colly"
 )
 
 type SiteConfig struct {
@@ -22,6 +23,10 @@ var siteConfigs = []SiteConfig{
 	{
 		Domain: "pinchofyum.com",
 		Parser: &parser.PinchOfYumParser{},
+	},
+	{
+		Domain: "sallysbakingaddiction.com",
+		Parser: &parser.SallysBakingAddictionParser{},
 	},
 }
 
